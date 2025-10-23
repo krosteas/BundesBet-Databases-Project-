@@ -1,51 +1,52 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BundesBet - Data Maintenance</title>
-    <link rel="stylesheet" type="text/css" href="../style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Bundesliga Analytics – Home</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-    <div class="page-wrapper">
-        <header>
-            <div class="logo">Bundes<span class="bet-part">Bet</span></div>
-            <nav>
-                <ul>
-                    <li><a href="../index.html">Home</a></li>
-                    <li><a href="#">Matches</a></li>
-                    <li><a href="#">Players</a></li>
-                    <li><a href="#">My Account</a></li>
-                    <li><a href="index.html">Maintenance</a></li>
-                </ul>
-            </nav>
-        </header>
-
-        <div class="container">
-            <main class="main-content" style="flex: 1;">
-                <h1>Data Maintenance</h1>
-                <p>Select a task to add new data to the system.</p>
-                
-                <h2>Entity Input Pages</h2>
-                <ul>
-                    <li><a href="add_season.html">Add New Season</a></li>
-                    <li><a href="add_team.html">Add New Team</a></li>
-                    <li><a href="add_person.html">Add New Person (Player/Coach)</a></li>
-                    <li><a href="add_user.html">Add New User Account</a></li>
-                </ul>
-
-                <h2>Relationship Input Pages</h2>
-                <ul>
-                    <li><a href="add_match.html">Add New Match (links Teams + Season)</a></li>
-                    <li><a href="add_person_team.html">Add Person to Team (links Person + Team)</a></li>
-                </ul>
-            </main>
-        </div>
-
-        <footer>
-            <p>&copy; 2025 BundesBet Team | <a href="../imprint.html">Imprint & Disclaimer</a></p>
-        </footer>
+  <header>
+    <div class="container nav">
+      <div class="brand"><div class="logo" aria-hidden="true"></div><span>Bundesliga Analytics</span></div>
+      <nav>
+        <a class="active" href="index.html">Home</a>
+        <a href="maintenance.html">Maintenance</a>
+        <a href="imprint.html">Imprint</a>
+      </nav>
     </div>
+  </header>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <span class="badge">v1.0</span>
+        <h1>Welcome to our student project</h1>
+        <p>This site presents our database-backed Bundesliga analytics project. Explore the input maintenance demo and see legal notes in the imprint.</p>
+      </div>
+      <div class="card">
+        <h2>Quick Links</h2>
+        <ul>
+          <li><a href="maintenance.html">Data Input Maintenance</a></li>
+          <li><a href="imprint.html">Imprint / Legal Notice</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section>
+      <h2>Branding / CD Highlights</h2>
+      <div class="grid">
+        <div class="card"><strong>Colors:</strong> deep navy background, bright accents for attention; high contrast.</div>
+        <div class="card"><strong>Typography:</strong> system-ui for speed & readability.</div>
+        <div class="card"><strong>Layout:</strong> cards, grid, soft radius, consistent spacing.</div>
+        <div class="card"><strong>Logo:</strong> abstract gradient block suggesting ball/heatmap.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="container">
+    <p>&copy; 2025 Team 3 — Student lab work.</p>
+  </footer>
 </body>
 </html>

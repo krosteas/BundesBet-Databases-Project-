@@ -1,134 +1,26 @@
-/* CSS for BundesBet Project
-   This file captures the Corporate Design settings.
-*/
-
-/* --- 1. CD Variables (Colors & Fonts) --- */
-:root {
-    --primary-color: #004d40;  /* Deep Green */
-    --secondary-color: #f4f4f4; /* Light Gray */
-    --accent-color: #d32f2f;   /* Sport Red */
-    --text-color: #212121;
-    --heading-font: 'Oswald', sans-serif;
-    --body-font: 'Roboto', sans-serif;
+:root{
+  --bg:#0B1220; --text:#E5E7EB; --muted:#9CA3AF;
+  --card:#111827; --link:#60A5FA; --maxw:1000px;
+  --accent:#E11D48; --accent2:#22C55E;
 }
-
-/* --- 2. General Page Setup --- */
-body {
-    font-family: var(--body-font);
-    background-color: var(--secondary-color);
-    color: var(--text-color);
-    margin: 0;
-    padding: 0;
-    line-height: 1.6;
-}
-
-/* --- 3. Layout Structure --- */
-.page-wrapper {
-    width: 90%;
-    max-width: 1200px;
-    margin: 20px auto;
-}
-
-.container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.main-content {
-    flex: 3; /* Takes 3/4 of the space */
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.sidebar {
-    flex: 1; /* Takes 1/4 of the space */
-    background-color: #ffffff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-/* --- 4. Typography --- */
-h1, h2, h3 {
-    font-family: var(--heading-font);
-    color: var(--primary-color);
-    margin-bottom: 15px;
-}
-
-p {
-    margin-bottom: 15px;
-}
-
-a {
-    color: var(--accent-color);
-    text-decoration: none;
-}
-
-a:hover {
-    text-decoration: underline;
-}
-
-/* --- 5. Header & Footer --- */
-header {
-    background-color: var(--primary-color);
-    color: #ffffff;
-    padding: 20px 5%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-radius: 8px 8px 0 0;
-}
-
-header .logo {
-    font-family: var(--heading-font);
-    font-size: 2.0em;
-    font-weight: 700;
-}
-
-header .logo .bet-part {
-    color: var(--accent-color); /* Matches CD Logo concept */
-}
-
-header nav ul {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-
-header nav li {
-    display: inline-block;
-    margin-left: 20px;
-}
-
-header nav a {
-    color: #ffffff;
-    text-decoration: none;
-    font-weight: 700;
-}
-
-footer {
-    text-align: center;
-    padding: 20px;
-    margin-top: 20px;
-    background-color: #333;
-    color: #aaa;
-    font-size: 0.9em;
-    border-radius: 0 0 8px 8px;
-}
-
-footer a {
-    color: #fff;
-}
-
-/* --- 6. Imprint Page Specifics --- */
-.disclaimer-box {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    padding: 20px;
-    margin-top: 20px;
-    font-size: 0.9em;
-    color: #555;
-}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
+  font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,Cantarell,"Helvetica Neue",Arial}
+a{color:var(--link);text-decoration:none} a:hover{text-decoration:underline}
+.container{max-width:var(--maxw);margin:0 auto;padding:1.25rem}
+header{position:sticky;top:0;border-bottom:1px solid #1f2937;
+  background:linear-gradient(90deg,rgba(17,24,39,.6),transparent);backdrop-filter:blur(6px)}
+.nav{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.75rem 0}
+.brand{display:flex;align-items:center;gap:.75rem;font-weight:700}
+.logo{width:36px;height:36px;border-radius:10px;
+  background:radial-gradient(circle at 30% 30%,var(--accent),var(--accent2))}
+.nav a{padding:.4rem .7rem;border-radius:10px}
+.nav a.active,.nav a:hover{background:#111827}
+.hero{display:grid;grid-template-columns:1.2fr .8fr;gap:2rem;padding:2rem 0;align-items:center}
+.hero h1{font-size:2rem;line-height:1.2;margin:.2rem 0 .6rem}
+.hero p{color:var(--muted)}
+.card{background:var(--card);border:1px solid #1f2937;border-radius:18px;padding:1rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem}
+h2{font-size:1.25rem;margin:1.25rem 0 .5rem}
+footer{border-top:1px solid #1f2937;margin-top:2rem;color:var(--muted)}
+.badge{display:inline-block;padding:.2rem .5rem;border-radius:999px;background:#0b132a;border:1px solid #1f2937;font-size:.8rem;color:#a3e635}
