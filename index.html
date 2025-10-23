@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BundesBet - Home</title>
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&family=Roboto:wght@400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-wrapper">
+        <header>
+            <div class="logo">Bundes<span class="bet-part">Bet</span></div>
+            <nav>
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="#">Matches</a></li>
+                    <li><a href="#">Players</a></li>
+                    <li><a href="#">My Account</a></li>
+                </ul>
+            </nav>
+        </header>
+
+        <div class="container">
+            
+            <main class="main-content">
+                <h1>Bundesliga Information & Betting</h1>
+                <p>
+                    Browse fixtures, results, and player stats, or place bets on upcoming matches.
+                </p>
+                
+                <section class="placeholder-section">
+                    <h2>Fixtures & Results</h2>
+                    <p>
+                        [Placeholder: A list of 'match_game' entities will be shown here. 
+                        Data from 'upcoming_match' (like odds) and 'completed_match' 
+                        (like home_goals, away_goals) will be displayed based on the 
+                        'match_type' discriminator.]
+                    </p>
+                </section>
+                
+                <section class="placeholder-section">
+                    <h2>Player & Team Info</h2>
+                    <p>
+                        [Placeholder: This section will allow browsing 'team' entities 
+                        and 'person' entities (specialized as 'player' or 'coach'). 
+                        The 'person_team' table will be used to show current rosters.]
+                    </p>
+                </section>
+            </main>
+
+            <aside class="sidebar">
+                <h2>My Account & Bets</h2>
+                <div class="placeholder-content">
+                    <p>
+                        [Placeholder: This area will show user-specific data. 
+                        If 'user_type' is 'bettor', it will display 'wallet_balance' 
+                        from the 'bettor' table. It will also list all placed wagers 
+                        from the 'bet' table, showing the match, stake, and 'outcome'.]
+                    </p>
+                </div>
+            </aside>
+
+        </div> <footer>
+            <p>
+                &copy; 2025 BundesBet Team (Ata Türk, Emirhan) | 
+                <a href="imprint.html">Imprint & Disclaimer</a>
+            </p>
+        </footer>
+    </div> </body>
+</html>

@@ -1,0 +1,134 @@
+/* CSS for BundesBet Project
+   This file captures the Corporate Design settings.
+*/
+
+/* --- 1. CD Variables (Colors & Fonts) --- */
+:root {
+    --primary-color: #004d40;  /* Deep Green */
+    --secondary-color: #f4f4f4; /* Light Gray */
+    --accent-color: #d32f2f;   /* Sport Red */
+    --text-color: #212121;
+    --heading-font: 'Oswald', sans-serif;
+    --body-font: 'Roboto', sans-serif;
+}
+
+/* --- 2. General Page Setup --- */
+body {
+    font-family: var(--body-font);
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+/* --- 3. Layout Structure --- */
+.page-wrapper {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+}
+
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.main-content {
+    flex: 3; /* Takes 3/4 of the space */
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.sidebar {
+    flex: 1; /* Takes 1/4 of the space */
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+/* --- 4. Typography --- */
+h1, h2, h3 {
+    font-family: var(--heading-font);
+    color: var(--primary-color);
+    margin-bottom: 15px;
+}
+
+p {
+    margin-bottom: 15px;
+}
+
+a {
+    color: var(--accent-color);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* --- 5. Header & Footer --- */
+header {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    padding: 20px 5%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 8px 8px 0 0;
+}
+
+header .logo {
+    font-family: var(--heading-font);
+    font-size: 2.0em;
+    font-weight: 700;
+}
+
+header .logo .bet-part {
+    color: var(--accent-color); /* Matches CD Logo concept */
+}
+
+header nav ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+header nav li {
+    display: inline-block;
+    margin-left: 20px;
+}
+
+header nav a {
+    color: #ffffff;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    margin-top: 20px;
+    background-color: #333;
+    color: #aaa;
+    font-size: 0.9em;
+    border-radius: 0 0 8px 8px;
+}
+
+footer a {
+    color: #fff;
+}
+
+/* --- 6. Imprint Page Specifics --- */
+.disclaimer-box {
+    background-color: #f9f9f9;
+    border: 1px solid #ddd;
+    padding: 20px;
+    margin-top: 20px;
+    font-size: 0.9em;
+    color: #555;
+}
