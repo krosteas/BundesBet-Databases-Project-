@@ -204,4 +204,4 @@ CREATE TABLE bet (
 -- ---------- Helpful indexes ------------------------------------------
 CREATE INDEX idx_person_name ON person(full_name);
 CREATE INDEX idx_team_name   ON team(name);
-CREATE INDEX idx_match_season_day ON match_game(season_label, matchday);
+-- CREATE INDEX idx_match_season_day ON match_game(season_label, matchday);
