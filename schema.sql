@@ -125,19 +125,24 @@ CREATE TABLE coach (
 
 -- ---------- Person <-> Team memberships (plays_at / coaches_at) -------
 -- If you intend “current team only”, drop dates. This version supports history.
+DROP TABLE IF EXISTS person_team;
 CREATE TABLE person_team (
-  person_id BIGINT UNSIGNED NOT NULL,
-  team_id   INT UNSIGNED NOT NULL,
-  role      ENUM('player','coach') NOT NULL,
-  start_date DATE NULL,
-  end_date   DATE NULL,
-  PRIMARY KEY (person_id, team_id, COALESCE(start_date,'1000-01-01')),
+  membership_id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+  person_id     BIGINT UNSIGNED NOT NULL,
+  team_id       INT UNSIGNED NOT NULL,
+  role          ENUM('player','coach') NOT NULL,
+  start_date    DATE NOT NULL DEFAULT '1000-01-01',
+  end_date      DATE NULL,
   CONSTRAINT fk_pt_person FOREIGN KEY (person_id) REFERENCES person(person_id)
     ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT fk_pt_team   FOREIGN KEY (team_id)   REFERENCES team(team_id)
     ON DELETE RESTRICT ON UPDATE CASCADE,
-  CONSTRAINT chk_pt_role  CHECK (role IN ('player','coach'))
-) ENGINE=InnoDB;
+  CONSTRAINT chk_pt_role  CHECK (role IN ('player','coach')),
+  UNIQUE KEY uk_person_team_start (person_id, team_id, start_date),
+  KEY idx_person_current (person_id, end_date),
+  KEY idx_team_current   (team_id, end_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 
 -- ---------- Matches (ISA: Match -> UpcomingMatch | CompletedMatch) ----
 CREATE TABLE match_game (

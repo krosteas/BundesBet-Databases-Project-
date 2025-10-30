@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>BundesBet — Upcoming Matches & Search</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <span class="brand-logo" aria-hidden="true"></span>
+        <span class="brand-name">BundesBet</span>
+      </a>
+      <nav class="nav-links">
+        <a class="active" href="index.html">Home</a>
+        <a href="imprint.html">Imprint</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="card">
+      <h1>Search teams or players</h1>
+      <div class="search-row">
+        <input id="searchInput" class="input" type="search" placeholder="Type a team or player…" autocomplete="off" />
+        <button id="searchBtn" class="btn">Search</button>
+      </div>
+
+      <div id="searchResults" class="search-results" hidden></div>
+      <div id="searchEmpty" class="muted" hidden>No results.</div>
+      <div id="searchError" class="error" hidden>Could not search. Please try again.</div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>Upcoming Matches</h2>
+        <div class="muted">Live from database</div>
+      </div>
+      <div id="matchList" class="match-grid"></div>
+      <div id="matchEmpty" class="muted" hidden>No upcoming matches scheduled.</div>
+      <div id="matchError" class="error" hidden>Could not load matches. Please refresh.</div>
+    </section>
+  </main>
+
+  <footer class="container site-footer">
+    <div class="muted">
+      © 2025 Team BundesBet — Student lab work. 
+      <a href="imprint.html">Imprint</a>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const input  = document.getElementById('searchInput');
+      const btn    = document.getElementById('searchBtn');
+      const listEl = document.getElementById('searchResults');
+      const empty  = document.getElementById('searchEmpty');
+      const errEl  = document.getElementById('searchError');
+
+      async function runSearch() {
+        const q = (input.value || '').trim();
+        if (!q) return;
+        listEl.innerHTML = '';
+        listEl.hidden = true; empty.hidden = true; errEl.hidden = true;
+        try {
+          // RELATIVE path (no leading slash)
+          const res = await fetch(`api/search.php?q=${encodeURIComponent(q)}`);
+          if (!res.ok) throw new Error('bad status');
+          const data = await res.json();
+
+          const items = [];
+          (data.teams || []).forEach(t => {
+            items.push({
+              type: 'team',
+              id: t.team_id,
+              title: t.name,
+              subtitle: t.city || 'Team',
+              href: `team.html?id=${encodeURIComponent(t.team_id)}`
+            });
+          });
+          (data.players || []).forEach(p => {
+            items.push({
+              type: 'player',
+              id: p.person_id,
+              title: p.full_name,
+              subtitle: p.position || 'Player',
+              href: `player.html?id=${encodeURIComponent(p.person_id)}`
+            });
+          });
+
+          if (!items.length) { empty.hidden = false; return; }
+
+          listEl.hidden = false;
+          for (const it of items) {
+            const a = document.createElement('a');
+            a.className = 'result-item';
+            a.href = it.href;
+            a.innerHTML = `
+              <div class="pill pill-${it.type}">${it.type}</div>
+              <div class="result-main">
+                <div class="result-title">${escapeHtml(it.title)}</div>
+                <div class="result-sub">${escapeHtml(it.subtitle || '')}</div>
+              </div>`;
+            listEl.appendChild(a);
+          }
+        } catch (e) {
+          errEl.hidden = false;
+        }
+      }
+
+      btn.addEventListener('click', runSearch);
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') runSearch();
+      });
+
+      const matchList = document.getElementById('matchList');
+      const matchEmpty = document.getElementById('matchEmpty');
+      const matchError = document.getElementById('matchError');
+
+      (async function loadUpcoming() {
+        matchList.innerHTML = '';
+        matchEmpty.hidden = true; matchError.hidden = true;
+        try {
+          // RELATIVE path (no leading slash)
+          const res = await fetch('api/upcomingmatches.php');
+          if (!res.ok) throw new Error('bad status');
+          const data = await res.json();
+          if (!Array.isArray(data) || !data.length) { matchEmpty.hidden = false; return; }
+          for (const m of data) {
+            const card = document.createElement('a');
+            card.className = 'match-card';
+            card.href = `match.html?id=${encodeURIComponent(m.match_id)}`;
+            const kickoff = fmtDateTime(m.kickoff_at);
+            card.innerHTML = `
+              <div class="match-row">
+                <div class="team">${escapeHtml(m.home_team?.name || 'Home')}</div>
+                <div class="vs">vs</div>
+                <div class="team">${escapeHtml(m.away_team?.name || 'Away')}</div>
+              </div>
+              <div class="match-sub">
+                <span class="when">${escapeHtml(kickoff)}</span>
+                <span class="dot">•</span>
+                <span class="where">${escapeHtml(m.venue || '')}</span>
+              </div>`;
+            matchList.appendChild(card);
+          }
+        } catch (e) {
+          matchError.hidden = false;
+        }
+      })();
+
+      function escapeHtml(s) {
+        return String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+      }
+      function fmtDateTime(ts) {
+        if (!ts) return '';
+        const iso = ts.replace(' ', 'T');
+        const d = new Date(iso);
+        if (isNaN(d)) return ts;
+        return d.toLocaleString(undefined, { dateStyle:'medium', timeStyle:'short' });
+      }
+    });
+  </script>
+</body>
+</html>

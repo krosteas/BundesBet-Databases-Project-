@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BundesBet – Match</title>
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <span class="brand-logo"></span><span class="brand-name">BundesBet</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a class="active" href="#">Match</a>
+        <a href="imprint.html">Imprint</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Match header / meta -->
+    <section class="card" id="matchHeader">
+      <h1 id="matchTitle" class="page-title">Loading Match…</h1>
+      <dl class="kv" id="matchMeta"></dl>
+    </section>
+
+    <!-- Score / odds -->
+    <section class="card" id="scoreOddsCard">
+      <div class="stat-grid">
+        <div class="stat">
+          <h3>Score / Result</h3>
+          <div class="big" id="scoreText">–</div>
+          <div class="muted" id="resultText"></div>
+        </div>
+        <div class="stat">
+          <h3>Odds (H/D/A)</h3>
+          <div class="big" id="oddsText">–</div>
+          <div class="muted">From database</div>
+        </div>
+        <div class="stat">
+          <h3>Kickoff</h3>
+          <div class="big" id="kickoffText">–</div>
+          <div class="muted" id="venueText"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lineups -->
+    <section class="card">
+      <h2>Lineups</h2>
+      <div class="grid">
+        <div>
+          <h3 id="homeTeamName">Home</h3>
+          <table class="table" id="homeXI">
+            <thead><tr><th>#</th><th>Player</th><th>Pos</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <h4>Bench</h4>
+          <table class="table" id="homeBench">
+            <thead><tr><th>#</th><th>Player</th><th>Pos</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+        <div>
+          <h3 id="awayTeamName">Away</h3>
+          <table class="table" id="awayXI">
+            <thead><tr><th>#</th><th>Player</th><th>Pos</th></tr></thead>
+            <tbody></tbody>
+          </table>
+          <h4>Bench</h4>
+          <table class="table" id="awayBench">
+            <thead><tr><th>#</th><th>Player</th><th>Pos</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Team form / quick stats -->
+    <section class="card">
+      <h2>Team Form (Last 5)</h2>
+      <div class="stat-grid" id="formCards">
+        <!-- populated via JS -->
+      </div>
+    </section>
+
+    <div id="errBox" class="error hidden">Could not load match data.</div>
+  </main>
+
+  <footer class="container site-footer">
+    <div class="muted">© 2025 BundesBet · <a href="imprint.html">Imprint</a></div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const id = new URLSearchParams(location.search).get('id');
+      const errBox = document.getElementById('errBox');
+      if (!id) { errBox.textContent='No match ID provided.'; errBox.classList.remove('hidden'); return; }
+
+      try {
+        const res = await fetch(`/api/match?id=${encodeURIComponent(id)}`);
+        if (!res.ok) throw new Error('bad status');
+        const m = await res.json();
+        renderMatch(m);
+      } catch (e) {
+        console.error(e);
+        errBox.classList.remove('hidden');
+      }
+    });
+
+    function renderMatch(m) {
+      // Title
+      const homeName = m.home_team?.name || 'Home';
+      const awayName = m.away_team?.name || 'Away';
+      document.getElementById('matchTitle').innerHTML =
+        `<a href="team.html?id=${m.home_team?.team_id}">${escapeHtml(homeName)}</a> vs <a href="team.html?id=${m.away_team?.team_id}">${escapeHtml(awayName)}</a>`;
+
+      // Meta
+      const meta = document.getElementById('matchMeta');
+      meta.innerHTML = '';
+      addKV(meta, 'Season', m.season_label);
+      addKV(meta, 'Matchday', m.matchday);
+      addKV(meta, 'Referee', m.referee);
+      addKV(meta, 'Type', m.match_type);
+
+      // Score/Result
+      const scoreText = (m.result && m.result.score_text) ?
+          m.result.score_text :
+          (m.match_type === 'upcoming' ? '—' : `${m.result?.home_goals ?? '-'}–${m.result?.away_goals ?? '-'}`);
+      document.getElementById('scoreText').textContent = scoreText;
+      document.getElementById('resultText').textContent = m.result?.result_text || '';
+
+      // Odds
+      const odds = [m.odds?.home_odds, m.odds?.draw_odds, m.odds?.away_odds]
+        .map(v => v!=null ? Number(v).toFixed(2) : '–').join(' / ');
+      document.getElementById('oddsText').textContent = odds;
+
+      // Kickoff / venue
+      document.getElementById('kickoffText').textContent = fmtDateTime(m.kickoff_at);
+      document.getElementById('venueText').textContent = m.venue || '';
+
+      // Team names above lineups
+      document.getElementById('homeTeamName').innerHTML =
+        `<a href="team.html?id=${m.home_team?.team_id}">${escapeHtml(homeName)}</a>`;
+      document.getElementById('awayTeamName').innerHTML =
+        `<a href="team.html?id=${m.away_team?.team_id}">${escapeHtml(awayName)}</a>`;
+
+      // Lineups
+      fillLineupTable('#homeXI', m.home_lineup?.starting);
+      fillLineupTable('#homeBench', m.home_lineup?.bench);
+      fillLineupTable('#awayXI', m.away_lineup?.starting);
+      fillLineupTable('#awayBench', m.away_lineup?.bench);
+
+      // Team form cards
+      const form = document.getElementById('formCards');
+      form.innerHTML = '';
+      form.insertAdjacentHTML('beforeend', formCard('Home Form', m.home_form));
+      form.insertAdjacentHTML('beforeend', formCard('Away Form', m.away_form));
+    }
+
+    function addKV(container, k, v){
+      if (v==null || v==='') return;
+      container.insertAdjacentHTML('beforeend', `<dt>${k}</dt><dd>${escapeHtml(v)}</dd>`);
+    }
+
+    function fillLineupTable(sel, arr) {
+      const tbody = document.querySelector(sel + ' tbody');
+      tbody.innerHTML = '';
+      if (!Array.isArray(arr)) return;
+      for (const p of arr) {
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td>${escapeHtml(p.number ?? '')}</td>
+            <td><a href="player.html?id=${p.person_id}">${escapeHtml(p.full_name)}</a></td>
+            <td>${escapeHtml(p.position || '')}</td>
+          </tr>`);
+      }
+    }
+
+    function formCard(title, f){
+      if (!f) f = {};
+      const last5 = Array.isArray(f.last5) ? f.last5.join(' ') : '–';
+      const summary = f.summary ? `${f.summary.w||0}W ${f.summary.d||0}D ${f.summary.l||0}L` : '';
+      return `
+        <div class="stat">
+          <h3>${escapeHtml(title)}</h3>
+          <div class="big">${escapeHtml(last5)}</div>
+          <div class="muted">${escapeHtml(summary)}</div>
+        </div>`;
+    }
+
+    function escapeHtml(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+    function fmtDateTime(ts){ if(!ts)return ''; const d=new Date(String(ts).replace(' ','T')); return isNaN(d)?ts:d.toLocaleString(); }
+  </script>
+</body>
+</html>

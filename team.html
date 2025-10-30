@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BundesBet – Team</title>
+  <link rel="stylesheet" href="app.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="index.html">
+        <span class="brand-logo"></span><span class="brand-name">BundesBet</span>
+      </a>
+      <nav class="nav-links">
+        <a href="index.html">Home</a>
+        <a class="active" href="#">Team</a>
+        <a href="imprint.html">Imprint</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="teamCard" class="card">
+      <h1 id="teamName" class="page-title">Loading Team…</h1>
+      <dl class="kv" id="teamMeta"></dl>
+    </section>
+
+    <section class="card">
+      <h2>Season Stats</h2>
+      <div id="teamStats" class="stat-grid"></div>
+    </section>
+
+    <section class="card">
+      <h2>Players</h2>
+      <table class="table" id="teamPlayers">
+        <thead><tr><th>Name</th><th>Position</th><th>Goals</th><th>Assists</th><th>Appearances</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="card">
+      <h2>Recent Matches</h2>
+      <table class="table" id="recentMatches">
+        <thead><tr><th>Date</th><th>Opponent</th><th>Result</th><th>Score</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <div id="errBox" class="error hidden">Could not load team data.</div>
+  </main>
+
+  <footer class="container site-footer">
+    <div class="muted">© 2025 BundesBet · <a href="imprint.html">Imprint</a></div>
+  </footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      const errBox = document.getElementById('errBox');
+
+      if (!id) {
+        errBox.textContent = 'No team ID provided.'; errBox.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        // RELATIVE path + correct filename
+        const res = await fetch(`api/team.php?id=${encodeURIComponent(id)}`);
+        if (!res.ok) throw new Error('bad status');
+        const team = await res.json();
+        renderTeam(team);
+      } catch (e) {
+        console.error(e);
+        errBox.classList.remove('hidden');
+      }
+    });
+
+    function renderTeam(team) {
+      // Name & metadata
+      document.getElementById('teamName').textContent = team.name || 'Unnamed Team';
+      const kv = document.getElementById('teamMeta');
+      kv.innerHTML = '';
+      const fields = {
+        City: team.city,
+        Stadium: team.stadium,
+        Founded: team.founded_year,
+        Website: team.website ? `<a href="${escapeHtml(team.website)}" target="_blank" rel="noopener">${escapeHtml(team.website)}</a>` : ''
+      };
+      for (const [k,v] of Object.entries(fields)) if (v)
+        kv.insertAdjacentHTML('beforeend', `<dt>${k}</dt><dd>${v}</dd>`);
+
+      // Stats
+      const st = document.getElementById('teamStats');
+      st.innerHTML = '';
+      const S = team.stats || {};
+      const stats = [
+        { label:'Matches', value:S.matches_played },
+        { label:'Wins', value:S.wins },
+        { label:'Draws', value:S.draws },
+        { label:'Losses', value:S.losses },
+        { label:'Goals For', value:S.goals_for },
+        { label:'Goals Against', value:S.goals_against },
+        { label:'Points', value:S.points }
+      ];
+      for (const s of stats) if (s.value != null)
+        st.insertAdjacentHTML('beforeend', `<div class="stat"><h3>${s.label}</h3><div class="big">${s.value}</div></div>`);
+
+      // Players (API returns "squad")
+      const playersTbody = document.querySelector('#teamPlayers tbody');
+      playersTbody.innerHTML = '';
+      if (Array.isArray(team.squad)) {
+        for (const p of team.squad) {
+          playersTbody.insertAdjacentHTML('beforeend', `
+            <tr>
+              <td><a href="player.html?id=${p.person_id}">${escapeHtml(p.full_name)}</a></td>
+              <td>${escapeHtml(p.position||'')}</td>
+              <td>${p.career_goals ?? 0}</td>
+              <td>${p.career_assists ?? 0}</td>
+              <td>${p.career_appearances ?? 0}</td>
+            </tr>`);
+        }
+      }
+
+      // Recent matches
+      const matchesTbody = document.querySelector('#recentMatches tbody');
+      matchesTbody.innerHTML = '';
+      if (Array.isArray(team.recent_matches)) {
+        for (const m of team.recent_matches) {
+          matchesTbody.insertAdjacentHTML('beforeend', `
+            <tr>
+              <td>${fmtDate(m.date)}</td>
+              <td><a href="team.html?id=${m.opponent_id}">${escapeHtml(m.opponent_name)}</a></td>
+              <td>${escapeHtml(m.result)}</td>
+              <td>${m.home_goals} – ${m.away_goals}</td>
+            </tr>`);
+        }
+      }
+    }
+
+    function escapeHtml(s){return String(s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+    function fmtDate(ts){ if(!ts) return ''; const d=new Date(String(ts).replace(' ','T')); return isNaN(d)?ts:d.toLocaleDateString(); }
+  </script>
+</body>
+</html>
