@@ -3,7 +3,7 @@ require_once __DIR__ . '/_auth.php';
 require_once __DIR__ . '/_csrf.php';
 
 $err = '';
-$next = isset($_GET['next']) ? $_GET['next'] : 'dashboard.php';
+$next = isset($_GET['next']) ? $_GET['next'] : '/~eyavuz/admin/dashboard.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   if (!csrf_check()) {
