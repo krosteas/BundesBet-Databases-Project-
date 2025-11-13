@@ -89,6 +89,15 @@
               href: `player.html?id=${encodeURIComponent(p.person_id)}`
             });
           });
+          (data.coaches || []).forEach(c => {
+              items.push({
+              type: 'coach',
+              id: c.person_id,
+              title: c.full_name,
+              subtitle: c.team_name ? `${c.role} – ${c.team_name}` : c.role || 'Coach',
+              href: `team.html?id=${encodeURIComponent(c.team_id ?? '')}` // or a dedicated coach page if you make one
+            });
+          });
 
           if (!items.length) { empty.hidden = false; return; }
 

@@ -5,8 +5,9 @@ require_once "_db.php";
   Endpoint: /api/search.php?q=...
   Returns: {
     query: "...",
-    teams:   [{ team_id, name, city }],
-    players: [{ person_id, full_name, position, team_id, team_name }]
+    teams:    [{ team_id, name, city }],
+    players:  [{ person_id, full_name, position, team_id, team_name }],
+    coaches:  [{ person_id, full_name, role, team_id, team_name }]
   }
 */
 
@@ -78,8 +79,49 @@ while ($p = $playersRes->fetch_assoc()) {
   ];
 }
 
+/* ---------- Coaches (with current team if available) ---------- */
+$coachesStmt = $mysqli->prepare("
+  SELECT 
+    p.person_id,
+    p.full_name,
+    c.role,
+    pt.team_id,
+    t.name AS team_name
+  FROM person AS p
+  JOIN coach AS c ON c.person_id = p.person_id
+  LEFT JOIN person_team AS pt 
+    ON pt.person_id = p.person_id
+   AND pt.role = 'coach'
+   AND (pt.end_date IS NULL OR pt.end_date > CURDATE())
+  LEFT JOIN team AS t ON t.team_id = pt.team_id
+  WHERE p.full_name LIKE CONCAT('%', ?, '%')
+     OR c.role      LIKE CONCAT('%', ?, '%')
+  ORDER BY p.full_name
+  LIMIT 10
+");
+if (!$coachesStmt) {
+  send_json(["error" => "Prepare failed (coaches)", "details" => $mysqli->error], 500);
+}
+$coachesStmt->bind_param("ss", $q, $q);
+$coachesStmt->execute();
+$coachesRes = $coachesStmt->get_result();
+
+$coaches = [];
+while ($c = $coachesRes->fetch_assoc()) {
+  $coaches[] = [
+    "person_id" => (int)$c["person_id"],
+    "full_name" => $c["full_name"],
+    "role"      => $c["role"],
+    "team_id"   => $c["team_id"] !== null ? (int)$c["team_id"] : null,
+    "team_name" => $c["team_name"]
+  ];
+}
+
+/* ---------- Final JSON ---------- */
 send_json([
   "query"   => $q,
   "teams"   => $teams,
-  "players" => $players
+  "players" => $players,
+  "coaches" => $coaches
 ]);
+
