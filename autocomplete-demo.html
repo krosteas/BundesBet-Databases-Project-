@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Autocomplete Demo – Static Tags</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- jQuery + jQuery UI from CDN -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
+
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 2rem; }
+    label { display: block; margin-bottom: 0.5rem; }
+    #tags { width: 280px; padding: 0.4rem; font-size: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>Autocomplete Demo (Static List)</h1>
+  <p>This is the experimental page for Assignment 9 with a constant tag list.</p>
+
+  <label for="tags">Search player or team:</label>
+  <input id="tags" />
+
+  <script>
+    //constant list in JS
+    const tags = [
+      "FC Bayern München",
+      "Borussia Dortmund",
+      "RB Leipzig",
+      "Harry Kane",
+      "Jamal Musiala",
+      "Florian Wirtz",
+      "Marco Reus"
+    ];
+
+    $(function () {
+      $("#tags").autocomplete({
+        source: tags,
+        minLength: 1
+      });
+    });
+  </script>
+</body>
+</html>

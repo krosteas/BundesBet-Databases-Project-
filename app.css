@@ -182,3 +182,82 @@ a:hover { text-decoration: underline; }
   .hero { grid-template-columns: 1fr !important; }
   .search-row { grid-template-columns: 1fr; }
 }
+
+/* Custom jQuery UI for autocomplete*/
+.ui-autocomplete {
+  background: #0d1426 !important;
+  border: 1px solid var(--line) !important;
+  border-radius: var(--radius-sm) !important;
+  padding: .25rem 0 !important;
+  max-height: 260px;
+  overflow-y: hidden;
+  overflow-x: hidden;
+  box-shadow: var(--shadow);
+  z-index: 9999 !important;
+}
+
+/* Remove default list spacing */
+.ui-menu {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Each suggestion row */
+.ui-menu .ui-menu-item {
+  margin: 0 !important;
+}
+
+.ui-menu-item-wrapper {
+  display: block !important;            /* ⬅ block, not flex */
+  padding: .6rem .8rem !important;
+  color: var(--text) !important;
+  background: transparent !important;
+  font-size: 0.95rem;
+  border-bottom: 1px solid var(--line);
+  white-space: normal !important;       /* ⬅ allow wrapping */
+  overflow: hidden;
+}
+
+/* Last item: no bottom border */
+.ui-menu-item:last-child .ui-menu-item-wrapper {
+  border-bottom: none !important;
+}
+
+/* Hover / active state */
+.ui-state-active,
+.ui-menu-item-wrapper.ui-state-active {
+  background: #0f1930 !important;
+  color: var(--text) !important;
+  border: none !important;
+}
+
+/* Remove default jQuery UI focus/hover borders */
+.ui-autocomplete .ui-state-hover,
+.ui-autocomplete .ui-state-focus {
+  background: #0f1930 !important;
+  border: none !important;
+  color: var(--text) !important;
+}
+
+/* Multiline content inside each item */
+.ac-title {
+  display: block !important;            /* ⬅ force its own line */
+  font-weight: 600;
+  color: var(--text);
+}
+
+.ac-subtitle {
+  display: block !important;            /* ⬅ second line */
+  font-size: 0.80rem;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* If jQuery UI wraps match text in <strong> */
+.ui-autocomplete .ui-menu-item-wrapper strong {
+  color: var(--brand) !important;
+}
+
+
+
+
