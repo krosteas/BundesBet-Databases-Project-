@@ -4,12 +4,26 @@
   <meta charset="utf-8" />
   <title>BundesBet — Upcoming Matches & Search</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- Shared styles -->
+  <link rel="stylesheet" href="app.css" />
+
   <!-- jQuery + jQuery UI (for autocomplete) -->
   <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
   <script src="https://code.jquery.com/ui/1.13.3/jquery-ui.min.js"></script>
-    <!-- Shared styles -->
-  <link rel="stylesheet" href="app.css" />
+
+  <!-- Leaflet (map) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
 </head>
 <body>
   <header class="site-header">
@@ -35,9 +49,7 @@
         <button id="searchBtn" class="btn">Search</button>
       </div>
 
-      <div id="searchResults" class="search-results" hidden>
-        <!-- Results injected by JS -->
-      </div>
+      <div id="searchResults" class="search-results" hidden></div>
 
       <div id="searchEmpty" class="muted" hidden>No results.</div>
       <div id="searchError" class="error" hidden>Could not search. Please try again.</div>
@@ -49,11 +61,20 @@
         <h2>Upcoming Matches</h2>
         <div class="muted">Live from database</div>
       </div>
-      <div id="matchList" class="match-grid">
-        <!-- Cards injected by JS -->
-      </div>
+      <div id="matchList" class="match-grid"></div>
       <div id="matchEmpty" class="muted" hidden>No upcoming matches scheduled.</div>
       <div id="matchError" class="error" hidden>Could not load matches. Please refresh.</div>
+    </section>
+
+    <!-- Geo / Map Section -->
+    <section class="card">
+      <div class="section-head">
+        <h2>Your Region</h2>
+        <div class="muted">Based on your IP address</div>
+      </div>
+      <div id="geoStatus" class="muted">Detecting your location…</div>
+      <div id="geoError" class="error hidden">Could not determine your location.</div>
+      <div id="map" style="margin-top:.8rem; height:320px; border-radius:16px; overflow:hidden;"></div>
     </section>
   </main>
 
@@ -66,7 +87,7 @@
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // --- Search wiring (manual results list below input) ---
+      // --- Search wiring ---
       const input  = document.getElementById('searchInput');
       const btn    = document.getElementById('searchBtn');
       const listEl = document.getElementById('searchResults');
@@ -138,7 +159,6 @@
 
       // === jQuery UI Autocomplete (styled, multiline) ===
       const $input = $('#searchInput');
-
       $input.autocomplete({
         minLength: 2,
         delay: 200,
@@ -154,9 +174,9 @@
               // Teams
               (data.teams || []).forEach(t => {
                 suggestions.push({
-                  label: t.name,                       // main line
+                  label: t.name,
                   value: t.name,
-                  subtitle: t.city || 'Team',          // second line
+                  subtitle: t.city || 'Team',
                   type: 'team',
                   id: t.team_id
                 });
@@ -167,7 +187,7 @@
                 suggestions.push({
                   label: p.full_name,
                   value: p.full_name,
-                  subtitle: `Player · ${p.position || ''}`,
+                  subtitle: p.position || 'Player',
                   type: 'player',
                   id: p.person_id
                 });
@@ -192,19 +212,15 @@
         }
       });
 
-      // Custom multiline rendering: title + subtitle below it
       const acInstance = $input.autocomplete('instance');
       acInstance._renderItem = function (ul, item) {
-        const $wrapper = $('<div>')
-          .append($('<div>')
-            .addClass('ac-title')
-            .text(item.label || ''))
-          .append($('<div>')
-            .addClass('ac-subtitle')
-            .text(item.subtitle || ''));
-
         return $('<li>')
-          .append($wrapper)
+          .append(
+            '<div class="ui-menu-item-wrapper">' +
+              '<span class="ac-title">' + escapeHtml(item.label) + '</span>' +
+              '<span class="ac-subtitle">' + escapeHtml(item.subtitle || '') + '</span>' +
+            '</div>'
+          )
           .appendTo(ul);
       };
 
@@ -253,13 +269,80 @@
         }
       })();
 
+      // --- Geo / Map logic (client-side ipinfo) ---
+      const geoStatus = document.getElementById('geoStatus');
+      const geoError  = document.getElementById('geoError');
+      const mapDiv    = document.getElementById('map');
+
+      if (mapDiv && window.L) {
+        // If you have an ipinfo token, put it here; otherwise leave empty.
+        const ipinfoToken = ""; // e.g. "your_token_here"
+
+        const url = ipinfoToken
+          ? `https://ipinfo.io/json?token=${encodeURIComponent(ipinfoToken)}`
+          : 'https://ipinfo.io/json';
+
+        fetch(url)
+          .then(res => {
+            if (!res.ok) throw new Error('geo status ' + res.status);
+            return res.json();
+          })
+          .then(data => {
+            const ip      = data.ip || 'unknown IP';
+            const city    = data.city || '';
+            const region  = data.region || '';
+            const country = data.country || '';
+            const loc     = data.loc || null;
+
+            if (!loc || loc.indexOf(',') === -1) {
+              throw new Error('no loc');
+            }
+
+            const parts = loc.split(',');
+            const lat   = parseFloat(parts[0]);
+            const lon   = parseFloat(parts[1]);
+
+            if (Number.isNaN(lat) || Number.isNaN(lon)) {
+              throw new Error('invalid lat/lon');
+            }
+
+            const locationText = [city, region, country].filter(Boolean).join(', ');
+
+            geoStatus.textContent = locationText
+              ? `You appear to be near ${locationText} (IP: ${ip})`
+              : `Your IP address: ${ip}`;
+
+            const map = L.map('map').setView([lat, lon], 11);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+              maxZoom: 19,
+              attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            const popupText = locationText ? `${ip} — ${locationText}` : ip;
+
+            L.marker([lat, lon])
+              .addTo(map)
+              .bindPopup(popupText)
+              .openPopup();
+          })
+          .catch(err => {
+            console.error('geo error', err);
+            geoStatus.classList.add('hidden');
+            geoError.classList.remove('hidden');
+          });
+      } else {
+        geoStatus.classList.add('hidden');
+        geoError.classList.remove('hidden');
+        geoError.textContent = 'Map library could not be loaded.';
+      }
+
       // ---- helpers ----
       function escapeHtml(s) {
         return String(s == null ? '' : s).replace(/[&<>"]/g, c => (
           {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]
         ));
       }
-
       function fmtDateTime(ts) {
         if (!ts) return '';
         const iso = ts.replace(' ', 'T');
